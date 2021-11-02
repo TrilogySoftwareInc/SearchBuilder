@@ -2077,6 +2077,14 @@ export default class Criteria {
 					this.s.value[i] = moment(this.s.value[i], this.s.dateFormat).toISOString();
 				}
 			}
+			else if (this.s.type.includes("luxon-epoch-seconds")) {
+			    for (var i = 0; i < this.s.value.length; i++) {
+				if (typeof this.s.value[i] === "string") {
+				    var instance = luxon.DateTime.fromFormat(this.s.value[i], this.s.dateFormat);
+				    this.s.value[i] = instance.toSeconds();
+				}
+			    }
+			}
 			else if(this.s.type.includes('luxon')) {
 				for (let i = 0; i < this.s.value.length; i++) {
 					this.s.value[i] = luxon.DateTime.fromFormat(this.s.value[i], this.s.dateFormat).toISO();
@@ -2095,7 +2103,7 @@ export default class Criteria {
 			data: this.s.data,
 			origData: this.s.origData,
 			type: this.s.type,
-			value: this.s.value.map(a => a.toString())
+			value: this.s.value.map(a => a ? a.toString() : a)
 		};
 	}
 
@@ -2536,6 +2544,9 @@ export default class Criteria {
 			// If it is a moment format then extract the date format
 			if (this.s.type.includes('moment')) {
 				this.s.dateFormat = this.s.type.replace(/moment-/g, '');
+			}
+			else if (this.s.type.includes('luxon-epoch-seconds')) {
+				this.s.dateFormat = this.s.type.replace(/luxon-epoch-seconds/g, '');
 			}
 			else if (this.s.type.includes('luxon')) {
 				this.s.dateFormat = this.s.type.replace(/luxon-/g, '');
